@@ -3,6 +3,8 @@
 This extension replaces English words with translations so that you may become
 enlightened with random vocabulary.
 
+![Screenshot](screenshot.png)
+
 #### Basic usage
 
 To install, navigate to `chrome://extensions` in a new tab in Chrome. Drag and
