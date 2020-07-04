@@ -4,6 +4,7 @@
   border-radius: 4px;
   position: relative;
   white-space: nowrap;
+  cursor: not-allowed;
 }
 .replacement-text .orig-text {
   background-color: rgba(0, 0, 0, 0.8);

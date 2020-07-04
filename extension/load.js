@@ -2,6 +2,8 @@
 
 const MAX_ANNOTATIONS = 200;
 
+const DICT_EXCL_KEY = 'EXCLUDED_TERMS';
+
 const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
   'TBODY', 'TR', 'TD', 'UL', 'LI'
@@ -34,6 +36,20 @@ class Translation {
   }
 }
 
+function addToDictExclusions(term) {
+  chrome.storage.local.get([DICT_EXCL_KEY], function(state) {
+    let excl_terms = state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : [];
+    if (excl_terms.indexOf(term) < 0) {
+      excl_terms.push(term);
+      let tmp = {};
+      tmp[DICT_EXCL_KEY] = excl_terms;
+      chrome.storage.local.set(tmp, function() {
+        console.log(`Excluding "${term}" from the dictionary.`);
+      });
+    }
+  });
+}
+
 function makeTextNode(tokens, pad_left, pad_right) {
   var result = pad_left ? ' ' : '';
   result += tokens.join(' ');
@@ -44,6 +60,10 @@ function makeTextNode(tokens, pad_left, pad_right) {
 function makeMatchNode(tokens, match) {
   let div = document.createElement('DIV');
   div.classList.add('replacement-text');
+  div.onclick = function() {
+    div.replaceWith(makeTextNode(tokens, true, true));
+    addToDictExclusions(tokens.join(' '));
+  };
 
   let orig = document.createElement('SPAN');
   orig.classList.add('orig-text');
@@ -117,7 +137,7 @@ function handleText(node, state) {
     if (match_len > 0) {
       let match_str = tokens.slice(i, i + match_len).join(' ').toLowerCase();
       if (!ALREADY_REPLACED.has(match_str)) {
-        console.log('Matched', match_str);
+        console.log('Matched:', match_str);
         if (new_nodes == null) {
           new_nodes = [];
         }
@@ -153,29 +173,33 @@ function walkDOM(node, func, state) {
   }
 }
 
-function load_dict(vocab) {
+function load_dict(vocab, exclusions) {
+  let excl_set = new Set(exclusions.map(x => x.toLowerCase()));
   let dict_root = new DictNode(null, {});
   vocab.forEach(x => {
-    let src = x[0].toLowerCase().split(' ');
-    let translation = new Translation(...x.slice(1));
-    var dict_ptr = dict_root;
-    for (var i = 0; i < src.length; i++) {
-      if (!dict_ptr.hasNext || !dict_ptr.next.hasOwnProperty(src[i])) {
-        var new_node;
-        if (i == src.length - 1) {
-          new_node = new DictNode(translation, null);
+    let src = x[0].trim().toLowerCase();
+    if (!excl_set.has(src)) {
+      let tokens = src.split(' ');
+      let translation = new Translation(...x.slice(1));
+      var dict_ptr = dict_root;
+      for (var i = 0; i < tokens.length; i++) {
+        if (!dict_ptr.hasNext || !dict_ptr.next.hasOwnProperty(tokens[i])) {
+          var new_node;
+          if (i == tokens.length - 1) {
+            new_node = new DictNode(translation, null);
+          } else {
+            new_node = new DictNode(null, null);
+          }
+          if (dict_ptr.next == null) {
+            dict_ptr.next = {};
+          }
+          dict_ptr.next[tokens[i]] = new_node;
+          dict_ptr = new_node;
         } else {
-          new_node = new DictNode(null, null);
-        }
-        if (dict_ptr.next == null) {
-          dict_ptr.next = {};
-        }
-        dict_ptr.next[src[i]] = new_node;
-        dict_ptr = new_node;
-      } else {
-        dict_ptr = dict_ptr.next[src[i]];
-        if (i == src.length - 1) {
-          dict_ptr.value = translation;
+          dict_ptr = dict_ptr.next[tokens[i]];
+          if (i == tokens.length - 1) {
+            dict_ptr.value = translation;
+          }
         }
       }
     }
@@ -185,12 +209,18 @@ function load_dict(vocab) {
 
 function annotate() {
   if (DICT_ROOT == null) {
-    const url = chrome.runtime.getURL('vocab.json');
-    fetch(url).then((response) => response.json()).then((json) => {
-      DICT_ROOT = load_dict(json);
-      annotate();
+    // Load dictionary lazily
+    let vocab_url = chrome.runtime.getURL('vocab.json');
+    fetch(vocab_url).then((response) => response.json()).then((json) => {
+      chrome.storage.local.get([DICT_EXCL_KEY], function(state) {
+        DICT_ROOT = load_dict(
+          json, state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : []
+        );
+        annotate();
+      });
     });
   } else {
+    // Already loaded dictionary
     walkDOM(document.body, function(node, state) {
       if (state.count > MAX_ANNOTATIONS) {
         return false;
@@ -214,8 +244,6 @@ function annotate() {
 document.addEventListener('keydown', function(zEvent) {
   if (zEvent.ctrlKey && zEvent.key === ' ') {
     annotate();
-    chrome.runtime.sendMessage({
-        action: 'setActiveIcon'
-    });
+    chrome.runtime.sendMessage({action: 'setActiveIcon'});
   }
 });

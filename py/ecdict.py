@@ -4,7 +4,9 @@ from collections import namedtuple
 import pinyin
 
 
-BLACKLIST_TYPES = {'num', 'abbr', 'vt', 'vi', 'adv', 'prep', 'aux', 'pron'}
+BLACKLIST_TYPES = {
+    'num', 'abbr', 'vt', 'vi', 'adv', 'prep', 'aux', 'pron', 'pl'
+}
 
 Item = namedtuple('Item', ['en', 'zh'])
 

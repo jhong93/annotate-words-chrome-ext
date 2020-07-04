@@ -2,6 +2,9 @@
 <html>
   <head>
     <style>
+      #popup_data {
+        min-width: 250px;
+      }
       span {
         white-space: nowrap;
       }
@@ -17,16 +20,35 @@
         line-height: 1;
         padding: 2px 4px;
         white-space: nowrap;
-       }
+      }
+      #excl_term_div {
+        min-height: 5px;
+        border-radius: 4px;
+        border: solid;
+      }
+      #excl_term_div .excl-term {
+        display: inline-block;
+        border-radius: 4px;
+        padding: 2px;
+        margin: 2px;
+        background-color: rgba(255, 0, 0, 0.25);
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
-    <div>
+    <div id="popup_data">
       <span>Annotating; please wait.</span>
       <p>
         You can also activate this extension by pressing
         <kbd>Ctrl</kbd>+<kbd>Space</kbd>.
+        Exclude terms from future results by clicking on them.
       </p>
+      <p>
+        You have excluded <span id="num_excl_terms"></span> terms from the dictionary.
+        Exclusions (click to remove):
+      </p>
+      <div id="excl_term_div"></div>
     </div>
     <script src="popup.js"></script>
   </body>
