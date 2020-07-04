@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+
+  "name": "Word annotations",
+  "author": "James Hong",
+  "version": "0.1.0",
+
+  "description": "Augment your web-browsing experience with foreign words. This is done by inserting foreign words when a word with a known translation appears.",
+  "icons": {"512": "icon.png"},
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [{
+    "css": ["styles.css"],
+    "js": ["replace.js"],
+    "matches": ["<all_urls>"]
+  }],
+
+  "web_accessible_resources": ["vocab.json"]
+}
