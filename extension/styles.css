@@ -54,7 +54,3 @@
 .replacement-text:hover .tooltip-text {
   visibility: visible;
 }
-
-.popup-text {
-  white-space: nowrap;
-}

@@ -8,7 +8,7 @@
   "description": "Augment your web-browsing experience with foreign words. This is done by inserting foreign words when a word with a known translation appears.",
   "icons": {"512": "icon.png"},
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": "img/icon-idle.png",
     "default_popup": "popup.html"
   },
 
@@ -17,6 +17,11 @@
     "js": ["load.js"],
     "matches": ["<all_urls>"]
   }],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
 
   "permissions": [
     "activeTab"

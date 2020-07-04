@@ -1,11 +1,13 @@
 /* Code to modify the DOM */
 
-const MAX_ANNOTATIONS = 100;
+const MAX_ANNOTATIONS = 200;
 
 const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
-  'TBODY', 'TR', 'TD'
+  'TBODY', 'TR', 'TD', 'UL', 'LI'
 ];
+
+const ALREADY_REPLACED = new Set();
 
 var DICT_ROOT = null;
 
@@ -114,7 +116,7 @@ function handleText(node, state) {
 
     if (match_len > 0) {
       let match_str = tokens.slice(i, i + match_len).join(' ').toLowerCase();
-      if (!state.already_matched.has(match_str)) {
+      if (!ALREADY_REPLACED.has(match_str)) {
         console.log('Matched', match_str);
         if (new_nodes == null) {
           new_nodes = [];
@@ -125,7 +127,7 @@ function handleText(node, state) {
         }
         new_nodes.push(makeMatchNode(tokens.slice(i, i + match_len), match));
         output_idx = i + match_len;
-        state.already_matched.add(match_str);
+        ALREADY_REPLACED.add(match_str);
         state.count += 1;
       } else {
         match_len = 0;
@@ -205,6 +207,15 @@ function annotate() {
         default:
           return false;
       }
-    }, {already_matched: new Set(), count: 0});
+    }, {count: 0});
   }
 }
+
+document.addEventListener('keydown', function(zEvent) {
+  if (zEvent.ctrlKey && zEvent.key === ' ') {
+    annotate();
+    chrome.runtime.sendMessage({
+        action: 'setActiveIcon'
+    });
+  }
+});
