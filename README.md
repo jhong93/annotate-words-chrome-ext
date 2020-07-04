@@ -10,7 +10,8 @@ enlightened with random vocabulary.
 To install, navigate to `chrome://extensions` in a new tab in Chrome. Drag and
 drop the `extension` directory in this repository into the Chrome window.
 
-Press the extension icon or Ctrl-Space to trigger the replacement.
+Press the extension icon or Ctrl-Space to trigger the replacement. Hover over
+annotations to show tooltips.
 
 #### Description of code
 
