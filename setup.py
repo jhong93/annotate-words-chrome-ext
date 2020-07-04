@@ -88,7 +88,32 @@ def load_ecdict_vocab(include_extra=False):
 def load_ejdict_vocab():
     stopwords = load_stopwords()
     data = ejdict.parse_ejdict('datasets/ejdict.txt')
-    raise NotImplementedError()
+    translations = []
+    for line in data:
+        en_tokens = line.en.split(' ')
+        if len(en_tokens) == 1 and en_tokens[0].lower() in stopwords:
+            continue
+        if en_tokens[0] == 'a' or en_tokens[0] == 'the':
+            en_tokens = en_tokens[1:]
+        if len(en_tokens) > MAX_N_GRAM_LEN:
+            continue
+        chosen_ja = line.ja[0]
+
+        # If the first one is too long, choose the shortest
+        if len(chosen_ja[1]) >= 10:
+            for ja in line.ja:
+                if len(ja[1]) < len(chosen_ja[1]):
+                    chosen_ja = ja
+
+        translations.append(Translation(
+            ' '.join(en_tokens),    # English
+            chosen_ja[1],           # Chinese
+            chosen_ja[2],           # Pinyin
+            ['[{}] {} {}'.format(*d) for d in line.ja
+             if len(d[1]) <= MAX_DEF_LEN]))
+    # Remove ambiguous words
+    all_src_words = Counter(x.source for x in translations)
+    return [t for t in translations if all_src_words[t.source] == 1]
 
 
 def load_custom_vocab(fname):
