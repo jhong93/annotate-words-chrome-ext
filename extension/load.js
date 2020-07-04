@@ -199,7 +199,7 @@ function annotate() {
         case Node.ELEMENT_NODE:
           return (ELEM_TO_RECURSE.indexOf(node.tagName) >= 0
             && node.className != 'replacement-text');
-        case Node.DODCUMENT_NODE:
+        case Node.DOCUMENT_NODE:
         case Node.DOCUMENT_FRAGMENT_NODE:
           return true;
         case Node.TEXT_NODE:
