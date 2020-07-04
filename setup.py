@@ -85,7 +85,9 @@ def load_ecdict_vocab(include_extra=False):
     return [t for t in translations if all_src_words[t.source] == 1]
 
 
-def load_ejdict_vocab(fname):
+def load_ejdict_vocab():
+    stopwords = load_stopwords()
+    data = ejdict.parse_ejdict('datasets/ejdict.txt')
     raise NotImplementedError()
 
 

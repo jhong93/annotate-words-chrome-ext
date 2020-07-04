@@ -1,4 +1,8 @@
 chrome.tabs.executeScript({
   code: 'annotate();'
 });
-chrome.browserAction.setIcon({path: 'img/icon-active.png'});
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.browserAction.setIcon({
+    path: 'img/icon-active.png', tabId: tabs[0].id
+  });
+})
