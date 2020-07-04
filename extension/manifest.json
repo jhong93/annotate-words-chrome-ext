@@ -14,9 +14,13 @@
 
   "content_scripts": [{
     "css": ["styles.css"],
-    "js": ["replace.js"],
+    "js": ["load.js"],
     "matches": ["<all_urls>"]
   }],
+
+  "permissions": [
+    "activeTab"
+  ],
 
   "web_accessible_resources": ["vocab.json"]
 }

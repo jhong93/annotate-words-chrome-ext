@@ -1,4 +1,4 @@
-/* Modify the DOM */
+/* Code to modify the DOM */
 
 const MAX_ANNOTATIONS = 100;
 
@@ -6,6 +6,8 @@ const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
   'TBODY', 'TR', 'TD'
 ];
+
+var DICT_ROOT = null;
 
 class DictNode {
   constructor(value, next) {
@@ -51,10 +53,15 @@ function makeMatchNode(tokens, match) {
   text.innerText = match.text;
   div.appendChild(text);
 
-  let sound = document.createElement('SPAN');
-  sound.classList.add('sound-text');
-  sound.innerText = match.sound;
-  div.appendChild(sound);
+  if (match.sound) {
+    let sound = document.createElement('SPAN');
+    sound.classList.add('sound-text');
+    sound.classList.add('rightmost-text');
+    sound.innerText = match.sound;
+    div.appendChild(sound);
+  } else {
+    text.classList.add('rightmost-text');
+  }
 
   if (match.tooltip && match.tooltip.length > 0) {
     let tool = document.createElement('DIV');
@@ -88,7 +95,7 @@ function handleText(node, state) {
     var match;
     var match_len = 0;
 
-    var dict_ptr = state.dict_root;
+    var dict_ptr = DICT_ROOT;
     for (j = 0; j < tokens.length - i; j++) {
       if (dict_ptr.hasNext) {
         dict_ptr = dict_ptr.next[tokens_lower[i + j]];
@@ -174,25 +181,30 @@ function load_dict(vocab) {
   return dict_root;
 }
 
-function main(vocab) {
-  let dict_root = load_dict(vocab);
-  walkDOM(document.body, function(node, state) {
-    if (state.count > MAX_ANNOTATIONS) {
-      return false;
-    }
-    switch (node.nodeType) {
-      case Node.ELEMENT_NODE:
-        return ELEM_TO_RECURSE.indexOf(node.tagName) >= 0;
-      case Node.DODCUMENT_NODE:
-      case Node.DOCUMENT_FRAGMENT_NODE:
-        return true;
-      case Node.TEXT_NODE:
-        handleText(node, state);
-      default:
+function annotate() {
+  if (DICT_ROOT == null) {
+    const url = chrome.runtime.getURL('vocab.json');
+    fetch(url).then((response) => response.json()).then((json) => {
+      DICT_ROOT = load_dict(json);
+      annotate();
+    });
+  } else {
+    walkDOM(document.body, function(node, state) {
+      if (state.count > MAX_ANNOTATIONS) {
         return false;
-    }
-  }, {dict_root: dict_root, already_matched: new Set(), count: 0});
+      }
+      switch (node.nodeType) {
+        case Node.ELEMENT_NODE:
+          return (ELEM_TO_RECURSE.indexOf(node.tagName) >= 0
+            && node.className != 'replacement-text');
+        case Node.DODCUMENT_NODE:
+        case Node.DOCUMENT_FRAGMENT_NODE:
+          return true;
+        case Node.TEXT_NODE:
+          handleText(node, state);
+        default:
+          return false;
+      }
+    }, {already_matched: new Set(), count: 0});
+  }
 }
-
-const url = chrome.runtime.getURL('vocab.json');
-fetch(url).then((response) => response.json()).then((json) => main(json));
