@@ -1,14 +1,16 @@
 const DICT_EXCL_KEY = 'EXCLUDED_TERMS';
 
-chrome.tabs.executeScript({
-  code: 'annotate();'
-});
-
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  chrome.browserAction.setIcon({
-    path: 'img/icon-active.png', tabId: tabs[0].id
+function annotateBtnClick() {
+  chrome.tabs.executeScript({
+    code: 'annotate();'
   });
-});
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.browserAction.setIcon({
+      path: 'img/icon-active.png', tabId: tabs[0].id
+    });
+  });
+}
+document.getElementById('annotateBtn').onclick = annotateBtnClick;
 
 function removeFromDictExclusions(term) {
   chrome.storage.local.get([DICT_EXCL_KEY], function(state) {

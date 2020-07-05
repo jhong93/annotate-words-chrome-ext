@@ -221,6 +221,7 @@ function annotate() {
     });
   } else {
     // Already loaded dictionary
+    let state = {count: 0};
     walkDOM(document.body, function(node, state) {
       if (state.count > MAX_ANNOTATIONS) {
         return false;
@@ -237,7 +238,10 @@ function annotate() {
         default:
           return false;
       }
-    }, {count: 0});
+    }, state);
+    if (state.count == 0) {
+      alert('No words to annotate! This may be because all annotatable words are annotated already or because the page uses non-standard HTML elements.');
+    }
   }
 }
 
