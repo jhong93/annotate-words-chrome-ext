@@ -6,7 +6,7 @@ const DICT_EXCL_KEY = 'EXCLUDED_TERMS';
 
 const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
-  'TBODY', 'TR', 'TD', 'UL', 'LI'
+  'TBODY', 'TR', 'TD', 'UL', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'
 ];
 
 const ALREADY_REPLACED = new Set();
