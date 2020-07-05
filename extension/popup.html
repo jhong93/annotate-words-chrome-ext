@@ -38,12 +38,23 @@
   </head>
   <body>
     <div id="popup_data">
-      <button type="button" id="annotateBtn">Annotate this page!</button>
+      <button type="button" id="annotate_btn">Annotate this page!</button>
       <p>
         You can also activate this extension by pressing the
-        <kbd>Right-Shift</kbd> key.
-        Exclude terms from future results by clicking on them.
+        <kbd>Right-Shift</kbd> key. Exclude terms from future results by
+        clicking on them.
       </p>
+      <p>
+        By default, any word in the dictionary will be annotated, which can
+        lead to a high density of annotations. You can probabilistically
+        reduce the density below. You can run the extension multiple times
+        on the same page without refreshing to increase the number of
+        annotations.
+      </p>
+      <div>
+        <label for="annotate_density">Density:</label>
+        <input type="range" min="1" max="100" value="100" class="slider" name="annotate_density" id="annotate_density">
+      </div>
       <p>
         You have excluded <span id="num_excl_terms"></span> terms from the dictionary.
         Exclusions (click to remove):

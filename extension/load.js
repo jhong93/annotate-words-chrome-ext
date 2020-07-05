@@ -3,6 +3,7 @@
 const MAX_ANNOTATIONS = 200;
 
 const DICT_EXCL_KEY = 'EXCLUDED_TERMS';
+const ANNOTATION_DENSITY_KEY = 'ANNOTATION_DENSITY';
 
 const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
@@ -137,18 +138,22 @@ function handleText(node, state) {
     if (match_len > 0) {
       let match_str = tokens.slice(i, i + match_len).join(' ').toLowerCase();
       if (!ALREADY_REPLACED.has(match_str)) {
-        console.log('Matched:', match_str);
-        if (new_nodes == null) {
-          new_nodes = [];
+        if (state.count == 0 || Math.random() * 100 <= state.density) {
+          console.log('Matched:', match_str);
+          if (new_nodes == null) {
+            new_nodes = [];
+          }
+          if (output_idx < i) {
+            new_nodes.push(makeTextNode(
+              tokens.slice(output_idx, i), output_idx > 0 || has_left_pad, true));
+          }
+          new_nodes.push(makeMatchNode(tokens.slice(i, i + match_len), match));
+          output_idx = i + match_len;
+          ALREADY_REPLACED.add(match_str);
+          state.count += 1;
+        } else {
+          console.log('Skipped match (density):', match_str);
         }
-        if (output_idx < i) {
-          new_nodes.push(makeTextNode(
-            tokens.slice(output_idx, i), output_idx > 0 || has_left_pad, true));
-        }
-        new_nodes.push(makeMatchNode(tokens.slice(i, i + match_len), match));
-        output_idx = i + match_len;
-        ALREADY_REPLACED.add(match_str);
-        state.count += 1;
       } else {
         match_len = 0;
       }
@@ -207,21 +212,10 @@ function load_dict(vocab, exclusions) {
   return dict_root;
 }
 
-function annotate() {
-  if (DICT_ROOT == null) {
-    // Load dictionary lazily
-    let vocab_url = chrome.runtime.getURL('vocab.json');
-    fetch(vocab_url).then((response) => response.json()).then((json) => {
-      chrome.storage.local.get([DICT_EXCL_KEY], function(state) {
-        DICT_ROOT = load_dict(
-          json, state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : []
-        );
-        annotate();
-      });
-    });
-  } else {
-    // Already loaded dictionary
-    let state = {count: 0};
+function annotateHelper() {
+  chrome.storage.local.get([ANNOTATION_DENSITY_KEY], function(config) {
+    let annotate_density = config.hasOwnProperty(ANNOTATION_DENSITY_KEY) ? config[ANNOTATION_DENSITY_KEY] : 100;
+    let state = {count: 0, density: annotate_density};
     walkDOM(document.body, function(node, state) {
       if (state.count > MAX_ANNOTATIONS) {
         return false;
@@ -242,6 +236,23 @@ function annotate() {
     if (state.count == 0) {
       alert('No words to annotate! This may be because all annotatable words are annotated already or because the page uses non-standard HTML elements.');
     }
+  });
+}
+
+function annotate() {
+  if (DICT_ROOT == null) {
+    // Load dictionary lazily
+    let vocab_url = chrome.runtime.getURL('vocab.json');
+    fetch(vocab_url).then((response) => response.json()).then((json) => {
+      chrome.storage.local.get([DICT_EXCL_KEY], function(state) {
+        DICT_ROOT = load_dict(
+          json, state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : []
+        );
+        annotateHelper();
+      });
+    });
+  } else {
+    annotateHelper();
   }
 }
 
