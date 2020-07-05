@@ -245,8 +245,8 @@ function annotate() {
   }
 }
 
-document.addEventListener('keydown', function(zEvent) {
-  if (zEvent.ctrlKey && zEvent.key === ' ') {
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Shift' && e.location === KeyboardEvent.DOM_KEY_LOCATION_RIGHT) {
     annotate();
     chrome.runtime.sendMessage({action: 'setActiveIcon'});
   }
