@@ -12,7 +12,7 @@ drop the `extension` directory in this repository into the Chrome window.
 
 Press the extension icon or the Right-Ctrl key to trigger the replacement.
 Hover over annotations to show tooltips (e.g., additional translations). To
-exclude a word from future annotations, click on an annotated word.
+exclude a word from future annotations, Alt + click on an annotated word.
 
 The default settings, may result in an overwhelming amount of matches. To reduce
 the density of matches in a text, use the density slider in the icon menu.

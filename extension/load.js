@@ -58,9 +58,14 @@ function makeTextNode(tokens, pad_left, pad_right, show) {
 function makeMatchNode(tokens, match, show_phonetic) {
   let div = document.createElement('DIV');
   div.classList.add('replacement-text');
-  div.onclick = function() {
-    div.replaceWith(makeTextNode(tokens, true, true));
-    addToDictExclusions(tokens.join(' '));
+  div.onclick = function(event) {
+    if (event.altKey) {
+      div.replaceWith(makeTextNode(tokens, true, true));
+      addToDictExclusions(tokens.join(' '));
+    } else {
+      let translate_url = `https://translate.google.com/?op=translate&sl=auto&tl=en&text=${encodeURIComponent(match.text)}`;
+      window.open(translate_url,'_blank');
+    }
   };
 
   let orig = document.createElement('SPAN');
