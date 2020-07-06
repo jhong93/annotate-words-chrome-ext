@@ -32,7 +32,7 @@ chrome.storage.local.get(
   function(state) {
     let excl_terms = state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : [];
     document.getElementById('num_excl_terms').innerText = excl_terms.length;
-    excl_terms.sort();
+    excl_terms.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
     let excl_terms_div = document.getElementById('excl_term_div');
     if (excl_terms.length > 0) {
