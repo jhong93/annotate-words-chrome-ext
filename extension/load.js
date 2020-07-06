@@ -2,9 +2,6 @@
 
 const MAX_ANNOTATIONS = 200;
 
-const DICT_EXCL_KEY = 'EXCLUDED_TERMS';
-const ANNOTATION_DENSITY_KEY = 'ANNOTATION_DENSITY';
-
 const ELEM_TO_RECURSE = [
   'P', 'BODY', 'MAIN', 'SPAN', 'ARTICLE', 'SECTION', 'DIV', 'TABLE',
   'TBODY', 'TR', 'TD', 'UL', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'
@@ -214,7 +211,7 @@ function load_dict(vocab, exclusions) {
 
 function annotateHelper() {
   chrome.storage.local.get([ANNOTATION_DENSITY_KEY], function(config) {
-    let annotate_density = config.hasOwnProperty(ANNOTATION_DENSITY_KEY) ? config[ANNOTATION_DENSITY_KEY] : 100;
+    let annotate_density = config.hasOwnProperty(ANNOTATION_DENSITY_KEY) ? config[ANNOTATION_DENSITY_KEY] : DEFAULT_ANNOTATION_DENSITY;
     let state = {count: 0, density: annotate_density};
     walkDOM(document.body, function(node, state) {
       if (state.count > MAX_ANNOTATIONS) {
@@ -260,5 +257,28 @@ document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.location === KeyboardEvent.DOM_KEY_LOCATION_RIGHT) {
     annotate();
     chrome.runtime.sendMessage({action: 'setActiveIcon'});
+  }
+});
+
+chrome.storage.local.get([AUTORUN_DOMAINS_KEY], function(state) {
+  if (state.hasOwnProperty(AUTORUN_DOMAINS_KEY)) {
+    let hostname_tokens = window.location.hostname.split('.');
+    let autorun_domains = state[AUTORUN_DOMAINS_KEY];
+    if (autorun_domains.some(function(x) {
+      let tokens = x.split('.');
+      if (tokens.length != hostname_tokens.length) {
+        return false;
+      }
+      for (var i = 0; i < tokens.length; i++) {
+        if (tokens[i] != '*' && tokens[i].toLowerCase() != hostname_tokens[i].toLowerCase()) {
+          return false;
+        }
+      }
+      console.log('Matched domain:', x);
+      return true;
+    })) {
+      annotate();
+      chrome.runtime.sendMessage({action: 'setActiveIcon'});
+    }
   }
 });

@@ -14,7 +14,7 @@
 
   "content_scripts": [{
     "css": ["styles.css"],
-    "js": ["load.js"],
+    "js": ["shared_constants.js", "load.js"],
     "matches": ["<all_urls>"]
   }],
 
@@ -27,5 +27,5 @@
     "activeTab", "storage"
   ],
 
-  "web_accessible_resources": ["vocab.json"]
+  "web_accessible_resources": ["shared_constants.js", "vocab.json"]
 }

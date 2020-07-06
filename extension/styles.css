@@ -7,19 +7,19 @@
   cursor: not-allowed;
 }
 .replacement-text .orig-text {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: #000;
   border-radius: 4px 0 0 4px;
   margin: 1px 0 1px 1px;
   padding: 2px;
   color: white;
 }
 .replacement-text .new-text {
-  background-color: rgba(0, 255, 0, 0.25);
+  background-color: #b0ffb0;
   margin: 1px 0 1px 0;
   padding: 2px;
 }
 .replacement-text .sound-text {
-  background-color: rgba(255, 0, 0, 0.25);
+  background-color: #ffb0b0;
   margin: 1px 0 1px 0;
   padding: 2px;
   color: black;
@@ -31,7 +31,7 @@
 .replacement-text .tooltip-text {
   visibility: hidden;
   background-color: black;
-  color: #ffffff;
+  color: #fff;
   text-align: left;
   border-radius: 4px;
 

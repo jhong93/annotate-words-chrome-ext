@@ -2,39 +2,52 @@
 <html>
   <head>
     <style>
-      #popup_data {
-        min-width: 250px;
-      }
-      span {
-        white-space: nowrap;
-      }
-      kbd {
-        background-color: #eee;
-        border-radius: 3px;
-        border: 1px solid #b4b4b4;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
-        color: #333;
-        display: inline-block;
-        font-size: .85em;
-        font-weight: 700;
-        line-height: 1;
-        padding: 2px 4px;
-        white-space: nowrap;
-      }
-      #excl_term_div {
-        min-height: 5px;
-        border-radius: 4px;
-        border: solid;
-      }
-      #excl_term_div .excl-term {
-        display: inline-block;
-        border-radius: 4px;
-        padding: 2px;
-        margin: 2px;
-        background-color: rgba(255, 0, 0, 0.25);
-        cursor: not-allowed;
-      }
+    #popup_data {
+      min-width: 400px;
+    }
+    span {
+      white-space: nowrap;
+    }
+    kbd {
+      background-color: #eee;
+      border-radius: 3px;
+      border: 1px solid #b4b4b4;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
+      color: #333;
+      display: inline-block;
+      font-size: .85em;
+      font-weight: 700;
+      line-height: 1;
+      padding: 2px 4px;
+      white-space: nowrap;
+    }
+    #excl_term_div {
+      min-height: 5px;
+      max-height: 500px;
+      border-radius: 4px;
+      border: solid;
+      overflow-y: scroll;
+    }
+    #excl_term_div .excl-term {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 2px;
+      margin: 2px;
+      background-color: rgba(255, 0, 0, 0.25);
+      cursor: not-allowed;
+    }
+    #autorun_domains_area {
+      width: 97%;
+      margin: 2px;
+      max-height: 500px;
+      border-radius: 4px;
+      border: solid;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      resize: none;
+    }
     </style>
+    <script src="shared_constants.js"></script>
   </head>
   <body>
     <div id="popup_data">
@@ -56,10 +69,14 @@
         <input type="range" min="1" max="100" value="100" class="slider" name="annotate_density" id="annotate_density">
       </div>
       <p>
-        You have excluded <span id="num_excl_terms"></span> terms from the dictionary.
-        Exclusions (click to remove):
+        You have excluded <span id="num_excl_terms"></span> terms from the
+        dictionary (click to remove):
       </p>
       <div id="excl_term_div"></div>
+      <p>
+        Automatically run on the following domains (one per line):
+      </p>
+      <textarea id="autorun_domains_area" rows="3"></textarea>
     </div>
     <script src="popup.js"></script>
   </body>
