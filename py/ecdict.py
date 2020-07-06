@@ -47,7 +47,7 @@ def _parse_zh_definitions(s, include_extra):
             if ins in added:
                 continue
             added.add(ins)
-            result.append((t, ins, pinyin.get(ins)))
+            result.append((t, ins, pinyin.get(ins, delimiter=' ')))
     return result
 
 
