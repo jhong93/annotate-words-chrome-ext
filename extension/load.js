@@ -48,14 +48,14 @@ function addToDictExclusions(term) {
   });
 }
 
-function makeTextNode(tokens, pad_left, pad_right) {
+function makeTextNode(tokens, pad_left, pad_right, show) {
   var result = pad_left ? ' ' : '';
   result += tokens.join(' ');
   result = pad_right ? result + ' ' : result;
   return document.createTextNode(result);
 }
 
-function makeMatchNode(tokens, match) {
+function makeMatchNode(tokens, match, show_phonetic) {
   let div = document.createElement('DIV');
   div.classList.add('replacement-text');
   div.onclick = function() {
@@ -73,7 +73,7 @@ function makeMatchNode(tokens, match) {
   text.innerText = match.text;
   div.appendChild(text);
 
-  if (match.sound) {
+  if (show_phonetic && match.sound) {
     let sound = document.createElement('SPAN');
     sound.classList.add('sound-text');
     sound.classList.add('rightmost-text');
@@ -144,7 +144,7 @@ function handleText(node, state) {
             new_nodes.push(makeTextNode(
               tokens.slice(output_idx, i), output_idx > 0 || has_left_pad, true));
           }
-          new_nodes.push(makeMatchNode(tokens.slice(i, i + match_len), match));
+          new_nodes.push(makeMatchNode(tokens.slice(i, i + match_len), match, state.show_phonetic));
           output_idx = i + match_len;
           ALREADY_REPLACED.add(match_str);
           state.count += 1;
@@ -210,9 +210,10 @@ function load_dict(vocab, exclusions) {
 }
 
 function annotateHelper() {
-  chrome.storage.local.get([ANNOTATION_DENSITY_KEY], function(config) {
+  chrome.storage.local.get([ANNOTATION_DENSITY_KEY, SHOW_PHONETIC_KEY], function(config) {
     let annotate_density = config.hasOwnProperty(ANNOTATION_DENSITY_KEY) ? config[ANNOTATION_DENSITY_KEY] : DEFAULT_ANNOTATION_DENSITY;
-    let state = {count: 0, density: annotate_density};
+    let show_phonetic = config.hasOwnProperty(SHOW_PHONETIC_KEY) ? config[SHOW_PHONETIC_KEY] : DEFAULT_SHOW_PHONETIC;
+    let state = {count: 0, density: annotate_density, show_phonetic: show_phonetic};
     walkDOM(document.body, function(node, state) {
       if (state.count > MAX_ANNOTATIONS) {
         return false;

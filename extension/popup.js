@@ -28,7 +28,7 @@ function removeFromDictExclusions(term) {
 }
 
 chrome.storage.local.get(
-  [DICT_EXCL_KEY, ANNOTATION_DENSITY_KEY, AUTORUN_DOMAINS_KEY],
+  [DICT_EXCL_KEY, ANNOTATION_DENSITY_KEY, AUTORUN_DOMAINS_KEY, SHOW_PHONETIC_KEY],
   function(state) {
     let excl_terms = state.hasOwnProperty(DICT_EXCL_KEY) ? state[DICT_EXCL_KEY] : [];
     document.getElementById('num_excl_terms').innerText = excl_terms.length;
@@ -53,6 +53,9 @@ chrome.storage.local.get(
 
     let autorun_domains = state.hasOwnProperty(AUTORUN_DOMAINS_KEY) ? state[AUTORUN_DOMAINS_KEY] : [];
     document.getElementById('autorun_domains_area').value = autorun_domains.join('\n');
+
+    let show_phonetic = state.hasOwnProperty(SHOW_PHONETIC_KEY) ? state[SHOW_PHONETIC_KEY] : DEFAULT_SHOW_PHONETIC;
+    document.getElementById('show_phonetic_box').checked = show_phonetic;
   });
 
 document.getElementById('annotate_density').onchange = function() {
@@ -74,5 +77,14 @@ document.getElementById('autorun_domains_area').onchange = function() {
   tmp[AUTORUN_DOMAINS_KEY] = new_domains;
   chrome.storage.local.set(tmp, function() {
     console.log(`Set autorun domains: ${new_domains.length}`);
+  });
+}
+
+document.getElementById('show_phonetic_box').onchange = function() {
+  let show_phonetic = document.getElementById('show_phonetic_box').checked;
+  let tmp = {}
+  tmp[SHOW_PHONETIC_KEY] = show_phonetic;
+  chrome.storage.local.set(tmp, function() {
+    console.log(`Set show pronunciation to: ${show_phonetic}`);
   });
 }
