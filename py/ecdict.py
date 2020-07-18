@@ -85,6 +85,11 @@ def parse_ecdict(fname, include_extra):
             en = row[0].strip()
             if en.startswith('-') or en.endswith('-'):
                 continue
+
+            en_tok = en.split(' ')
+            if len(en_tok) > 1 and en_tok[0] == 'a':
+                continue
+
             en = en.replace('-', ' ')
 
             zh = _remove_weird_characters(row[3])
